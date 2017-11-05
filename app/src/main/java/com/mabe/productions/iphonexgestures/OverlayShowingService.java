@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.media.Image;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.ActionBar;
@@ -22,6 +23,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,6 +41,7 @@ public class OverlayShowingService extends Service{
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
     private boolean firstTime = false;
     private boolean stillTouched = false;
+    private ImageView animationImageView;
 
     long startingTime = 0;
     double startingY = 0;
@@ -54,18 +58,20 @@ public class OverlayShowingService extends Service{
     public void onCreate() {
         super.onCreate();
 
-        final GestureDetector gdt = new GestureDetector(new GestureListener());
+        //Center ImageView | SUBVIEW
+        animationImageView = new ImageView(this);
+        animationImageView.setBackgroundColor(Color.TRANSPARENT);
+        LinearLayout.LayoutParams animationImgLayout = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(120,this),(int)CheckingUtils.convertPixelsToDp(120,this));
+        animationImageView.setLayoutParams(animationImgLayout);
 
         //ImageView | SUBVIEW
         ImageView bottomImage = new ImageView(this);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(500,40);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this));
         bottomImage.setLayoutParams(layoutParams);
         bottomImage.setBackgroundColor(Color.TRANSPARENT);
         bottomImage.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
-
-
 
 
 
@@ -98,6 +104,7 @@ public class OverlayShowingService extends Service{
                         public void run() {
                         if(stillTouched){
                             try{
+                                recentAppsRiseFade();
                                 Class serviceManagerClass = Class.forName("android.os.ServiceManager");
                                 Method getService = serviceManagerClass.getMethod("getService", String.class);
                                 IBinder retbinder = (IBinder) getService.invoke(serviceManagerClass, "statusbar");
@@ -113,6 +120,7 @@ public class OverlayShowingService extends Service{
 
                         }else{
                             Log.i("TEST", "GoHomeScreen");
+                            homeRiseFade();
                             Intent startMain = new Intent(Intent.ACTION_MAIN);
                             startMain.addCategory(Intent.CATEGORY_HOME);
                             startMain.setFlags(FLAG_ACTIVITY_NEW_TASK);
@@ -124,20 +132,23 @@ public class OverlayShowingService extends Service{
 
                     }
                 }
-
-
-                gdt.onTouchEvent(event);
                 return true;
             }
         });
 
-        //Layout | SUPERVIEW
-        LinearLayout layout = new LinearLayout(this);
-        layout.setLayoutParams(new ActionBar.LayoutParams(500,40));
-        layout.addView(bottomImage);
+
+        //Bottom Layout | SUPERVIEW
+        LinearLayout layoutBottom = new LinearLayout(this);
+        layoutBottom.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(120,this),(int)CheckingUtils.convertPixelsToDp(120,this)));
+        layoutBottom.addView(bottomImage);
+
+        //Center Layout | SUPERVIEW
+        LinearLayout centerLayout = new LinearLayout(this);
+        centerLayout.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this)));
+        centerLayout.addView(animationImageView);
 
 
-
+        //BOTTOM WINDOW MANAGER
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -145,13 +156,31 @@ public class OverlayShowingService extends Service{
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
-
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        wm.addView(layoutBottom, params);
+
+
+        //CENTER WINDOW MANAGER
+        WindowManager.LayoutParams centerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                PixelFormat.TRANSLUCENT);
+
+       centerParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+
+        WindowManager centerWm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        centerWm.addView(centerLayout, centerParams);
 
 
 
 
-        wm.addView(layout, params);
+
+
 
 
 
@@ -163,45 +192,28 @@ public class OverlayShowingService extends Service{
 
     }
 
-
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//
-//            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-//                Log.i("TEST", "Right to left");
-//                return false; // Right to left
-//
-//            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-//                Log.i("TEST", "Left to right");
-//                return false; // Left to right
-//            }
-//
-//            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-//                //Log.i("TEST", "Bottom to top");
-////
-////
-//
-//
-//
-//
-//                return false; // Bottom to top
-//            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-//                Log.i("TEST", "Top to bottom");
-//                return false; // Top to bottom
-//            }
-            return false;
-        }
+    private void imageViewInvisible(){
+        Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.alphazero);
+        animationImageView.startAnimation(homeAnimation);
 
     }
 
-    private void toggleRecents() {
-
-        Intent closeRecents = new Intent("com.android.systemui.recent.action.TOGGLE_RECENTS");
-        closeRecents.setFlags(FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-        ComponentName recents = new ComponentName("com.android.systemui", "com.android.systemui.recent.RecentsActivity");
-        closeRecents.setComponent(recents);
-        this.startActivity(closeRecents);
+    private void homeRiseFade(){
+        animationImageView.setImageResource(R.drawable.home);
+        imageViewInvisible();
+        Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.risefade);
+        animationImageView.startAnimation(homeAnimation);
     }
+
+
+    private void recentAppsRiseFade(){
+        animationImageView.setImageResource(R.drawable.recentapps);
+        imageViewInvisible();
+        Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.risefade);
+        animationImageView.startAnimation(homeAnimation);
+    }
+
+
+
 }
 
