@@ -60,13 +60,13 @@ public class OverlayShowingService extends Service{
 
         //Center ImageView | SUBVIEW
         animationImageView = new ImageView(this);
-        animationImageView.setBackgroundColor(Color.TRANSPARENT);
+            animationImageView.setBackgroundColor(Color.TRANSPARENT);
         LinearLayout.LayoutParams animationImgLayout = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(120,this),(int)CheckingUtils.convertPixelsToDp(120,this));
         animationImageView.setLayoutParams(animationImgLayout);
 
         //ImageView | SUBVIEW
         ImageView bottomImage = new ImageView(this);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this));
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(15,this));
         bottomImage.setLayoutParams(layoutParams);
         bottomImage.setBackgroundColor(Color.TRANSPARENT);
         bottomImage.setOnTouchListener(new View.OnTouchListener() {
@@ -91,8 +91,6 @@ public class OverlayShowingService extends Service{
 
                 long passedTime = System.currentTimeMillis() - startingTime;
 
-//                Log.i("TEST", "Passed time: " + passedTime);
-//                Log.i("TEST", "Swiped up: " + Math.abs((event.getY() - startingY)));
 
                 if(passedTime<400 && firstTime){
 
@@ -128,7 +126,7 @@ public class OverlayShowingService extends Service{
                         }
 
                     }
-                }, 80);
+                }, 200);
 
                     }
                 }
@@ -148,7 +146,7 @@ public class OverlayShowingService extends Service{
         centerLayout.addView(animationImageView);
 
 
-        //BOTTOM WINDOW MANAGER
+        //BOTTOM WINDOW MANAGER PARAMS
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -156,11 +154,9 @@ public class OverlayShowingService extends Service{
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        wm.addView(layoutBottom, params);
 
 
-        //CENTER WINDOW MANAGER
+        //CENTER WINDOW MANAGER PARAMS
         WindowManager.LayoutParams centerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 LayoutParams.TYPE_TOAST,
@@ -171,10 +167,13 @@ public class OverlayShowingService extends Service{
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT);
 
-       centerParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+        centerParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
 
-        WindowManager centerWm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        centerWm.addView(centerLayout, centerParams);
+
+        //WINDOW MANAGER
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        wm.addView(layoutBottom, params);
+        wm.addView(centerLayout, centerParams);
 
 
 
