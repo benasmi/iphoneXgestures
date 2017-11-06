@@ -145,7 +145,6 @@ public class OverlayShowingService extends Service{
         centerLayout.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this)));
         centerLayout.addView(animationImageView);
 
-
         //BOTTOM WINDOW MANAGER PARAMS
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -191,15 +190,11 @@ public class OverlayShowingService extends Service{
 
     }
 
-    private void imageViewInvisible(){
-        Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.alphazero);
-        animationImageView.startAnimation(homeAnimation);
 
-    }
 
     private void homeRiseFade(){
         animationImageView.setImageResource(R.drawable.home);
-        imageViewInvisible();
+
         Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.risefade);
         animationImageView.startAnimation(homeAnimation);
     }
@@ -207,7 +202,7 @@ public class OverlayShowingService extends Service{
 
     private void recentAppsRiseFade(){
         animationImageView.setImageResource(R.drawable.recentapps);
-        imageViewInvisible();
+
         Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.risefade);
         animationImageView.startAnimation(homeAnimation);
     }
