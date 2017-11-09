@@ -10,8 +10,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.mabe.productions.iphonexgestures.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+    <android.support.v7.widget.SwitchCompat
+        android:text=""
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleX="2"
+        android:scaleY="2"
+        android:id="@+id/center_switch"
+        android:theme="@style/SCBSwitch"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

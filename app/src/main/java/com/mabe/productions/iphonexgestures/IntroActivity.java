@@ -38,7 +38,7 @@ public class IntroActivity extends AppIntro2 {
 
 
         showSkipButton(false);
-        addSlide(SampleSlide.newInstance("X-gestures", "Add 'i' to your Android", R.drawable.ic_appicon, Color.parseColor("#315016")));
+        addSlide(SampleSlide.newInstance("X-gestures", "iPhone gestures on your Android", R.drawable.ic_appicon, Color.parseColor("#315016")));
 
         addSlide(SampleSlide.newInstance("Swipe","Swipe from bottom to open home screen", R.drawable.swipe_tutorial, Color.parseColor("#018191")));
 
