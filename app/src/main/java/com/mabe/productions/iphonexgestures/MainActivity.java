@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
@@ -25,6 +26,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private SwitchCompat service_switch;
     private RelativeLayout layout;
     private Intent svc;
+    private TextView infoTxt;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -44,19 +47,36 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
+        infoTxt = (TextView) findViewById(R.id.info_txt);
+        Typeface tfLight = Typeface.createFromAsset(getAssets(),
+                "fonts/openSans.ttf");
+        infoTxt.setTypeface(tfLight);
+
+
+
         layout = (RelativeLayout) findViewById(R.id.activity_main);
 
         service_switch = (SwitchCompat) findViewById(R.id.center_switch);
         service_switch.setChecked(sharedPreferences.getBoolean("switchState",true));
+
         if(service_switch.isChecked()){
+            infoTxt.setText("ON");
+            infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
             OverlayShowingService.serviceIsWorking = true;
             svc = new Intent(MainActivity.this, OverlayShowingService.class);
             layout.setBackgroundColor(Color.parseColor("#ff4081"));
             startService(svc);
         }else{
+            infoTxt.setText("OFF");
+            infoTxt.setTextColor(Color.parseColor("#ff4081"));
             OverlayShowingService.serviceIsWorking = false;
         }
 
+        if(sharedPreferences.getBoolean("firstTimeActivity",true)){
+            infoTxt.setText("Gestures are on. Try it yourself!");
+            infoTxt.setTextSize(25);
+            sharedPreferences.edit().putBoolean("firstTimeActivity",false).commit();
+        }
 
 
         service_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -68,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
                 if(b){
                     svc = new Intent(MainActivity.this, OverlayShowingService.class);
                     startService(svc);
+                    infoTxt.setText("ON");
+                    infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
                     //Toast.makeText(MainActivity.this,"Service started...",Toast.LENGTH_LONG).show();
                     layout.setBackgroundColor(Color.parseColor("#ff4081"));
                     splashFromBottom();
@@ -75,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
                 }else{
                     OverlayShowingService.serviceIsWorking = false;
+                    infoTxt.setText("OFF");
+                    infoTxt.setTextColor(Color.parseColor("#ff4081"));
                     stopService(svc);
                     //Toast.makeText(MainActivity.this,"Service stopped...",Toast.LENGTH_LONG).show();
                     layout.setBackgroundColor(Color.parseColor("#ecf0f1"));

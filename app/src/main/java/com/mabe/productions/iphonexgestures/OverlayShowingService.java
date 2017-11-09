@@ -38,7 +38,6 @@ public class OverlayShowingService extends Service{
 
 
     private static final int SWIPE_MIN_DISTANCE = 120;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
     public static boolean serviceIsWorking = true;
     private boolean firstTime = false;
     private boolean stillTouched = false;
@@ -60,7 +59,6 @@ public class OverlayShowingService extends Service{
         super.onCreate();
 
         serviceIsWorking = true;
-
         //Center ImageView | SUBVIEW
         animationImageView = new ImageView(this);
             animationImageView.setBackgroundColor(Color.TRANSPARENT);
@@ -176,13 +174,6 @@ public class OverlayShowingService extends Service{
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(layoutBottom, params);
         wm.addView(centerLayout, centerParams);
-
-
-
-
-
-
-
 
 
     }
