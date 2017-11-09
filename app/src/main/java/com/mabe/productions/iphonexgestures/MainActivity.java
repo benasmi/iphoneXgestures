@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(service_switch.isChecked()){
             infoTxt.setText("ON");
+            infoTxt.setTextSize(35);
             infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
             OverlayShowingService.serviceIsWorking = true;
             svc = new Intent(MainActivity.this, OverlayShowingService.class);
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         if(sharedPreferences.getBoolean("firstTimeActivity",true)){
             infoTxt.setText("Gestures are on. Try it yourself!");
             infoTxt.setTextSize(25);
+            infoTxt.setTextSize(35);
             sharedPreferences.edit().putBoolean("firstTimeActivity",false).commit();
         }
 
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     svc = new Intent(MainActivity.this, OverlayShowingService.class);
                     startService(svc);
                     infoTxt.setText("ON");
+                    infoTxt.setTextSize(35);
                     infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
                     //Toast.makeText(MainActivity.this,"Service started...",Toast.LENGTH_LONG).show();
                     layout.setBackgroundColor(Color.parseColor("#ff4081"));
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 }else{
                     OverlayShowingService.serviceIsWorking = false;
                     infoTxt.setText("OFF");
+                    infoTxt.setTextSize(35);
                     infoTxt.setTextColor(Color.parseColor("#ff4081"));
                     stopService(svc);
                     //Toast.makeText(MainActivity.this,"Service stopped...",Toast.LENGTH_LONG).show();
