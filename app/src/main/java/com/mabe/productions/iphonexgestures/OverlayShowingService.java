@@ -142,7 +142,7 @@ public class OverlayShowingService extends Service{
         layoutBottom.addView(bottomImage);
 
         //Center Layout | SUPERVIEW
-        LinearLayout centerLayout = new LinearLayout(this);
+        final LinearLayout centerLayout = new LinearLayout(this);
         centerLayout.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this)));
         centerLayout.addView(animationImageView);
 
@@ -150,16 +150,16 @@ public class OverlayShowingService extends Service{
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
+                android.os.Build.VERSION.SDK_INT >= 26 ? LayoutParams.TYPE_APPLICATION_OVERLAY : LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
 
 
         //CENTER WINDOW MANAGER PARAMS
-        WindowManager.LayoutParams centerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
+        final WindowManager.LayoutParams centerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                LayoutParams.TYPE_TOAST,
+                android.os.Build.VERSION.SDK_INT >= 26 ? LayoutParams.TYPE_APPLICATION_OVERLAY : LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
@@ -171,9 +171,15 @@ public class OverlayShowingService extends Service{
 
 
         //WINDOW MANAGER
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        final WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(layoutBottom, params);
-        wm.addView(centerLayout, centerParams);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                wm.addView(centerLayout, centerParams);
+            }
+        }, 200l);
 
 
     }
