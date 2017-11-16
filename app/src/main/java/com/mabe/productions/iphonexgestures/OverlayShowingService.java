@@ -4,6 +4,7 @@ package com.mabe.productions.iphonexgestures;
  * Created by Benas on 11/5/2017.
  */
 
+import android.accessibilityservice.AccessibilityService;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -53,6 +54,7 @@ public class OverlayShowingService extends Service{
 
         return null;
     }
+
 
     @Override
     public void onCreate() {
@@ -104,26 +106,13 @@ public class OverlayShowingService extends Service{
                         if(stillTouched){
                             try{
                                 recentAppsRiseFade();
-                                Class serviceManagerClass = Class.forName("android.os.ServiceManager");
-                                Method getService = serviceManagerClass.getMethod("getService", String.class);
-                                IBinder retbinder = (IBinder) getService.invoke(serviceManagerClass, "statusbar");
-                                Class statusBarClass = Class.forName(retbinder.getInterfaceDescriptor());
-                                Object statusBarObject = statusBarClass.getClasses()[0].getMethod("asInterface", IBinder.class).invoke(null, new Object[] { retbinder });
-                                Method clearAll = statusBarClass.getMethod("toggleRecentApps");
-                                clearAll.setAccessible(true);
-                                clearAll.invoke(statusBarObject);
+                                MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+
                             }catch (Exception e){
-
                             }
-
-
                         }else{
-                            Log.i("TEST", "GoHomeScreen");
                             homeRiseFade();
-                            Intent startMain = new Intent(Intent.ACTION_MAIN);
-                            startMain.addCategory(Intent.CATEGORY_HOME);
-                            startMain.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(startMain);
+                            MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
                         }
 
                     }

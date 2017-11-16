@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">IphoneX gestures</string>
+    <string name="accessibility_service_description">Accessibility service is used to dispatch TOGGLE_RECENTS and TOGGLE_HOME event</string>
 </resources>

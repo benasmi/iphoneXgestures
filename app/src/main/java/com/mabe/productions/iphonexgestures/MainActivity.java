@@ -1,17 +1,22 @@
 package com.mabe.productions.iphonexgestures;
 
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.animation.Animator;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -21,6 +26,8 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -28,6 +35,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,12 +61,14 @@ public class MainActivity extends AppCompatActivity {
                 "fonts/openSans.ttf");
         infoTxt.setTypeface(tfLight);
 
-
-
         layout = (RelativeLayout) findViewById(R.id.activity_main);
 
         service_switch = (SwitchCompat) findViewById(R.id.center_switch);
         service_switch.setChecked(sharedPreferences.getBoolean("switchState",true));
+
+        if(!isAccessibilityServiceEnabled(this, MyAccessibilityService.class)){
+            CheckingUtils.createErrorBox("Please enable Accessibility Service in settings.", this, R.style.CasualStyle);
+        }
 
         if(service_switch.isChecked()){
             infoTxt.setText("ON");
@@ -150,6 +161,24 @@ public class MainActivity extends AppCompatActivity {
         anim.setDuration(700);
 
         anim.start();
+    }
+
+    public static boolean isAccessibilityServiceEnabled(Context context, Class<?> accessibilityService) {
+        ComponentName expectedComponentName = new ComponentName(context, accessibilityService);
+        String enabledServicesSetting = Settings.Secure.getString(context.getContentResolver(),  Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        if (enabledServicesSetting == null)
+            return false;
+        TextUtils.SimpleStringSplitter colonSplitter = new TextUtils.SimpleStringSplitter(':');
+        colonSplitter.setString(enabledServicesSetting);
+        while (colonSplitter.hasNext()) {
+            String componentNameString = colonSplitter.next();
+            ComponentName enabledService = ComponentName.unflattenFromString(componentNameString);
+
+            if (enabledService != null && enabledService.equals(expectedComponentName))
+                return true;
+        }
+
+        return false;
     }
 
 

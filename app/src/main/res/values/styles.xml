@@ -30,4 +30,13 @@
         </item>
     </style>
 
+
+    <style name="CasualStyle" parent="Base.V7.Theme.AppCompat.Dialog">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">#ff4081</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">#000</item>
+        <!-- Used for the background -->
+        <item name="android:background">#FFF</item>
+    </style>
 </resources>

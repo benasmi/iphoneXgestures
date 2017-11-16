@@ -1,7 +1,11 @@
 package com.mabe.productions.iphonexgestures;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.provider.Settings;
 import android.util.TypedValue;
 
 /**
@@ -15,4 +19,48 @@ public class CheckingUtils {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px, resources.getDisplayMetrics());
 
     }
+
+    //Error box to inform UI
+    public static void createErrorBox(String message, final Context context, int theme){
+
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            new AlertDialog.Builder(context, theme)
+                    .setMessage(message)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            context.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            System.exit(0);
+                        }
+                    })
+                    .show();
+        }else{
+            new AlertDialog.Builder(context)
+                    .setMessage(message)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            context.startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            System.exit(0);
+                        }
+                    })
+                    .show();
+        }
+    }
+
+
 }
