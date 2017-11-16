@@ -105,14 +105,24 @@ public class OverlayShowingService extends Service{
                         public void run() {
                         if(stillTouched){
                             try{
-                                recentAppsRiseFade();
-                                MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+                                if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
+                                    recentAppsRiseFade();
+                                    MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+                                }else{
+                                    Toast.makeText(getApplicationContext(), "Please enable Accessibility services for X-Gestures!", Toast.LENGTH_LONG).show();
+                                }
 
                             }catch (Exception e){
                             }
                         }else{
-                            homeRiseFade();
-                            MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+
+                            if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
+                                homeRiseFade();
+                                MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Please enable Accessibility services for X-Gestures!", Toast.LENGTH_LONG).show();
+                            }
+
                         }
 
                     }

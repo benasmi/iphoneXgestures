@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         service_switch = (SwitchCompat) findViewById(R.id.center_switch);
         service_switch.setChecked(sharedPreferences.getBoolean("switchState",true));
 
-        if(!isAccessibilityServiceEnabled(this, MyAccessibilityService.class)){
+        if(!CheckingUtils.isAccessibilityServiceEnabled(this, MyAccessibilityService.class)){
             CheckingUtils.createErrorBox("Please enable Accessibility Service in settings.", this, R.style.CasualStyle);
         }
 
@@ -163,23 +163,7 @@ public class MainActivity extends AppCompatActivity {
         anim.start();
     }
 
-    public static boolean isAccessibilityServiceEnabled(Context context, Class<?> accessibilityService) {
-        ComponentName expectedComponentName = new ComponentName(context, accessibilityService);
-        String enabledServicesSetting = Settings.Secure.getString(context.getContentResolver(),  Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-        if (enabledServicesSetting == null)
-            return false;
-        TextUtils.SimpleStringSplitter colonSplitter = new TextUtils.SimpleStringSplitter(':');
-        colonSplitter.setString(enabledServicesSetting);
-        while (colonSplitter.hasNext()) {
-            String componentNameString = colonSplitter.next();
-            ComponentName enabledService = ComponentName.unflattenFromString(componentNameString);
 
-            if (enabledService != null && enabledService.equals(expectedComponentName))
-                return true;
-        }
-
-        return false;
-    }
 
 
 
