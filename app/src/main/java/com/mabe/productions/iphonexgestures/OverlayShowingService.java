@@ -38,7 +38,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 public class OverlayShowingService extends Service{
 
 
-    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static int SWIPE_MIN_DISTANCE;
     public static boolean serviceIsWorking = true;
     private boolean firstTime = false;
     private boolean stillTouched = false;
@@ -59,6 +59,8 @@ public class OverlayShowingService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
+
+        SWIPE_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(120, getApplicationContext());
 
         serviceIsWorking = true;
         //Center ImageView | SUBVIEW
@@ -95,7 +97,7 @@ public class OverlayShowingService extends Service{
                 long passedTime = System.currentTimeMillis() - startingTime;
 
 
-                if(passedTime<400 && firstTime && serviceIsWorking){
+                if(/*passedTime<800 && */firstTime && serviceIsWorking){
 
                     Log.i("TEST", "Bottom to top");
                     if(Math.abs(event.getY() - startingY) > SWIPE_MIN_DISTANCE){
@@ -126,7 +128,7 @@ public class OverlayShowingService extends Service{
                         }
 
                     }
-                }, 200);
+                }, 350);
 
                     }
                 }
