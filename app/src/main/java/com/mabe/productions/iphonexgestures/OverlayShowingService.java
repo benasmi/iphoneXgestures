@@ -14,6 +14,7 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.IntDef;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -59,6 +60,8 @@ public class OverlayShowingService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Log.i("TEST", "overlay showing service started");
 
         SWIPE_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(120, getApplicationContext());
 
@@ -183,6 +186,12 @@ public class OverlayShowingService extends Service{
         }, 200l);
 
 
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 
     @Override
