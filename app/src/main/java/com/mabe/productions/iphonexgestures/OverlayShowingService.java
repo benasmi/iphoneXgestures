@@ -161,7 +161,7 @@ public class OverlayShowingService extends Service{
         final LinearLayout centerLayout = new LinearLayout(this);
         centerLayout.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this)));
         centerLayout.addView(animationImageView);
-        
+
 
         //BOTTOM WINDOW MANAGER PARAMS
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
