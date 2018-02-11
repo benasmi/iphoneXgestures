@@ -1,17 +1,24 @@
 package com.mabe.productions.iphonexgestures;
 
+import android.Manifest;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.animation.Animator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +47,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int SYSTEM_OVERLAY_PERMISSION = 1;
     private SwitchCompat service_switch;
     private RelativeLayout layout;
     private Intent svc;
@@ -69,6 +77,19 @@ public class MainActivity extends AppCompatActivity {
         if(!CheckingUtils.isAccessibilityServiceEnabled(this, MyAccessibilityService.class)){
             CheckingUtils.createErrorBox("Please enable Accessibility Service in settings.", this, R.style.CasualStyle);
         }
+
+        /*
+         * Asking for system overlay permission.
+         */
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.SYSTEM_ALERT_WINDOW);
+        if(android.os.Build.VERSION.SDK_INT >= 26 && permissionCheck == PackageManager.PERMISSION_DENIED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW},
+                    SYSTEM_OVERLAY_PERMISSION);
+        }
+
+
+
 
         if(service_switch.isChecked()){
             infoTxt.setText("ON");
@@ -124,12 +145,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
 }
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void splashFromBottom(){

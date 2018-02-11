@@ -4,17 +4,20 @@ package com.mabe.productions.iphonexgestures;
  * Created by Benas on 11/5/2017.
  */
 
+import android.Manifest;
 import android.accessibilityservice.AccessibilityService;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.IntDef;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -51,8 +54,6 @@ public class OverlayShowingService extends Service{
     @Override
     public IBinder onBind(Intent intent) {
 
-
-
         return null;
     }
 
@@ -61,7 +62,7 @@ public class OverlayShowingService extends Service{
     public void onCreate() {
         super.onCreate();
 
-        Log.i("TEST", "overlay showing service started");
+       // Log.i("TEST", "overlay showing service started");
 
         SWIPE_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(120, getApplicationContext());
 
@@ -87,14 +88,14 @@ public class OverlayShowingService extends Service{
                 if (event.getAction() == MotionEvent.ACTION_UP) {
 
                     stillTouched = false;
-                    Log.i("TEST", "PAKEITE BOOLENA į false");
+                   // Log.i("TEST", "PAKEITE BOOLENA į false");
                 }
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     stillTouched = true;
                     firstTime = true;
                     startingTime = System.currentTimeMillis();
                     startingY = event.getY();
-                    Log.i("TEST", "PAKEITE BOOLENA į true");
+                    //Log.i("TEST", "PAKEITE BOOLENA į true");
                 }
 
                 long passedTime = System.currentTimeMillis() - startingTime;
@@ -102,7 +103,7 @@ public class OverlayShowingService extends Service{
 
                 if(/*passedTime<800 && */firstTime && serviceIsWorking){
 
-                    Log.i("TEST", "Bottom to top");
+                    //Log.i("TEST", "Bottom to top");
                     if(Math.abs(event.getY() - startingY) > SWIPE_MIN_DISTANCE){
                         firstTime = !firstTime;
                         new Handler().postDelayed(new Runnable() {
@@ -110,9 +111,15 @@ public class OverlayShowingService extends Service{
                         public void run() {
                         if(stillTouched){
                             try{
+
                                 if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
                                     recentAppsRiseFade();
+                                    if(MyAccessibilityService.instance == null){
+                                        Toast.makeText(OverlayShowingService.this, "Please reboot your phone to start AccessibilityService.", Toast.LENGTH_LONG);
+                                        return;
+                                    }
                                     MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+
                                 }else{
                                     Toast.makeText(getApplicationContext(), "Please enable Accessibility services for X-Gestures!", Toast.LENGTH_LONG).show();
                                 }
@@ -123,6 +130,10 @@ public class OverlayShowingService extends Service{
 
                             if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
                                 homeRiseFade();
+                                if(MyAccessibilityService.instance == null){
+                                   Toast.makeText(OverlayShowingService.this, "Please reboot your phone to start AccessibilityService.", Toast.LENGTH_LONG);
+                                   return;
+                                }
                                 MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
                             }else{
                                 Toast.makeText(getApplicationContext(), "Please enable Accessibility services for X-Gestures!", Toast.LENGTH_LONG).show();
@@ -145,16 +156,18 @@ public class OverlayShowingService extends Service{
         layoutBottom.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(120,this),(int)CheckingUtils.convertPixelsToDp(120,this)));
         layoutBottom.addView(bottomImage);
 
+
         //Center Layout | SUPERVIEW
         final LinearLayout centerLayout = new LinearLayout(this);
         centerLayout.setLayoutParams(new ActionBar.LayoutParams((int)CheckingUtils.convertPixelsToDp(200,this),(int)CheckingUtils.convertPixelsToDp(25,this)));
         centerLayout.addView(animationImageView);
+        
 
         //BOTTOM WINDOW MANAGER PARAMS
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                android.os.Build.VERSION.SDK_INT >= 26 ? LayoutParams.TYPE_APPLICATION_OVERLAY : LayoutParams.TYPE_TOAST,
+                android.os.Build.VERSION.SDK_INT >= 26 ? LayoutParams.TYPE_APPLICATION_OVERLAY : LayoutParams.TYPE_PHONE, //TYPE_PHONE may need to be replaced with TYPE_TOAST
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
@@ -163,7 +176,7 @@ public class OverlayShowingService extends Service{
         //CENTER WINDOW MANAGER PARAMS
         final WindowManager.LayoutParams centerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                android.os.Build.VERSION.SDK_INT >= 26 ? LayoutParams.TYPE_APPLICATION_OVERLAY : LayoutParams.TYPE_TOAST,
+                android.os.Build.VERSION.SDK_INT >= 26 ? LayoutParams.TYPE_APPLICATION_OVERLAY : LayoutParams.TYPE_PHONE, //TYPE_PHONE may need to be replaced with TYPE_TOAST
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
@@ -175,13 +188,25 @@ public class OverlayShowingService extends Service{
 
 
         //WINDOW MANAGER
+
+        //Checking if SYSTEM_OVERLAY permission is granted, if api level is above or equal to 26
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.SYSTEM_ALERT_WINDOW);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED && android.os.Build.VERSION.SDK_INT >= 26){
+            Toast.makeText(this, "Please enable SYSTEM_OVERLAY permission for X-Gestures in Settings!", Toast.LENGTH_LONG);
+            return;
+        }
+
         final WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(layoutBottom, params);
 
-        new Handler().postDelayed(new Runnable() {
+        final Handler handler = new Handler();
+
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                wm.addView(centerLayout, centerParams);
+               wm.addView(centerLayout, centerParams);
+
+
             }
         }, 200l);
 
