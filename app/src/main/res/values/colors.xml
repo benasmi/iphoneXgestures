@@ -2,10 +2,10 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#ff4081</color>
     <color name="splashBackground">#FFFF4081</color>
     <color name="text_color">#ffffff</color>
-
+    <color name="light">#ecf0f1</color>
 
     //Switch ON color
     <color name="enabled_foreground_white">#ecf0f1</color>

@@ -1,55 +1,34 @@
 package com.mabe.productions.iphonexgestures;
 
 import android.Manifest;
-import android.accessibilityservice.AccessibilityServiceInfo;
-import android.animation.Animator;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PixelFormat;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityManager;
-import android.widget.Button;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.List;
+import io.codetail.animation.SupportAnimator;
+import io.codetail.widget.RevealFrameLayout;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int SYSTEM_OVERLAY_PERMISSION = 1;
     private SwitchCompat service_switch;
-    private RelativeLayout layout;
+    private RelativeLayout content_layout;
+    private RevealFrameLayout root_layout;
     private Intent svc;
     private TextView infoTxt;
     private SharedPreferences sharedPreferences;
@@ -69,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
                 "fonts/openSans.ttf");
         infoTxt.setTypeface(tfLight);
 
-        layout = (RelativeLayout) findViewById(R.id.activity_main);
-
+        content_layout = (RelativeLayout) findViewById(R.id.content_layout);
+        root_layout = (RevealFrameLayout) findViewById(R.id.rootLayout);
         service_switch = (SwitchCompat) findViewById(R.id.center_switch);
         service_switch.setChecked(sharedPreferences.getBoolean("switchState",true));
 
@@ -94,13 +73,15 @@ public class MainActivity extends AppCompatActivity {
         if(service_switch.isChecked()){
             infoTxt.setText("ON");
             infoTxt.setTextSize(35);
+            root_layout.setBackgroundColor(getResources().getColor(R.color.colorAccent));
             infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
             OverlayShowingService.serviceIsWorking = true;
             svc = new Intent(MainActivity.this, OverlayShowingService.class);
-            layout.setBackgroundColor(Color.parseColor("#ff4081"));
+            content_layout.setBackgroundColor(Color.parseColor("#ff4081"));
             startService(svc);
         }else{
             infoTxt.setText("OFF");
+            root_layout.setBackgroundColor(getResources().getColor(R.color.light));
             infoTxt.setTextColor(Color.parseColor("#ff4081"));
             OverlayShowingService.serviceIsWorking = false;
         }
@@ -126,8 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     infoTxt.setTextSize(35);
                     infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
                     //Toast.makeText(MainActivity.this,"Service started...",Toast.LENGTH_LONG).show();
-                    layout.setBackgroundColor(Color.parseColor("#ff4081"));
-                    splashFromBottom();
+                    splash(R.color.light, R.color.colorAccent);
                     OverlayShowingService.serviceIsWorking = true;
 
                 }else{
@@ -137,10 +117,7 @@ public class MainActivity extends AppCompatActivity {
                     infoTxt.setTextColor(Color.parseColor("#ff4081"));
                     stopService(svc);
                     //Toast.makeText(MainActivity.this,"Service stopped...",Toast.LENGTH_LONG).show();
-                    layout.setBackgroundColor(Color.parseColor("#ecf0f1"));
-                    splashFromTop();
-
-
+                    splash(R.color.colorAccent, R.color.light);
                 }
             }
         });
@@ -148,38 +125,30 @@ public class MainActivity extends AppCompatActivity {
 }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void splashFromBottom(){
-        int x = layout.getRight();
-        int y = layout.getBottom();
+    private void splash(final int startColor, final int targetColor){
+        root_layout.setBackgroundColor(getResources().getColor(startColor));
+        content_layout.setBackgroundColor(getResources().getColor(targetColor));
 
-        int startRadius = 0;
-        int endRadius = (int) Math.hypot(layout.getWidth(), layout.getHeight());
+        // get the center for the clipping circle
+        int cx = (content_layout.getLeft() + content_layout.getRight()) / 2;
+        int cy = (content_layout.getTop() + content_layout.getBottom()) / 2;
 
-        Animator anim = ViewAnimationUtils.createCircularReveal(layout, x, y, startRadius, endRadius);
+        // get the final radius for the clipping circle
+        int dx = Math.max(cx, content_layout.getWidth() - cx);
+        int dy = Math.max(cy, content_layout.getHeight() - cy);
+        float finalRadius = (float) Math.hypot(dx, dy);
 
+        // Android native animator
+        SupportAnimator animator =
+                io.codetail.animation.ViewAnimationUtils.createCircularReveal(content_layout, cx, cy, 0, finalRadius);
 
-        anim.setDuration(700);
-        anim.start();
+        animator.setInterpolator(new AccelerateDecelerateInterpolator());
+        animator.setDuration(1500);
+        animator.start();
 
 
 
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void splashFromTop(){
-        int x = layout.getLeft();
-        int y = layout.getTop();
-
-        int startRadius = 0;
-        int endRadius = (int) Math.hypot(layout.getWidth(), layout.getHeight());
-
-        Animator anim = ViewAnimationUtils.createCircularReveal(layout, x, y, startRadius, endRadius);
-        anim.setDuration(700);
-
-        anim.start();
-    }
-
 
 
 
