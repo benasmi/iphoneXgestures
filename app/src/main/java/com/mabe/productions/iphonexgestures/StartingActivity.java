@@ -65,6 +65,7 @@ public class StartingActivity extends AwesomeSplash {
                     startActivity(intent);
                 }
 
+                StartingActivity.this.finish();
 
             }
         }, 1000);
