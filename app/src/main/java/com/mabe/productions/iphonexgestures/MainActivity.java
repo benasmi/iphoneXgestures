@@ -1,31 +1,56 @@
 package com.mabe.productions.iphonexgestures;
 
 import android.Manifest;
+import android.bluetooth.BluetoothGattService;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.Typeface;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.media.Image;
+import android.media.ImageReader;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
+import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Date;
 
 import io.codetail.animation.SupportAnimator;
@@ -41,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
     private Intent svc;
     private TextView infoTxt;
     private SharedPreferences sharedPreferences;
+    private boolean isReceiverRegistered = false;
+
+    private static final int REQUEST_ID = 1;
+    private ImageView imageView;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +81,19 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ScreenshotManager.INSTANCE.requestScreenshotPermission(MainActivity.this, REQUEST_ID);
+        registerReceiver();
+        Button start = (Button) findViewById(R.id.button);
+        Button stop = (Button) findViewById(R.id.button2);
+        imageView = (ImageView) findViewById(R.id.imageView2);
+
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
 
         sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
         infoTxt = (TextView) findViewById(R.id.info_txt);
@@ -131,7 +175,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
 }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()){
+                case OverlayShowingService.ACTION_SCREENSHOT:
+                    ScreenshotManager.INSTANCE.takeScreenshot(MainActivity.this);
+                    break;
+
+            }
+        }
+    };
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(OverlayShowingService.ACTION_SCREENSHOT);
+            LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, filter);
+            isReceiverRegistered = true;
+        }
+    }
+
+
 
 
     private void splash(final int startColor, final int targetColor){
@@ -165,7 +235,11 @@ public class MainActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ID)
+            ScreenshotManager.INSTANCE.onActivityResult(resultCode, data);
+    }
 
 
 }

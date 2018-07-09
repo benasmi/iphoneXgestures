@@ -23,6 +23,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.Gravity;
@@ -50,10 +51,13 @@ public class OverlayShowingService extends Service{
     private static int BOTTOM_LEFT_SWIPE_MIN_DISTANCE;
     private static int CENTER_RIGHT_MIN_DISTANCE;
 
+    public static final String ACTION_SCREENSHOT = "ACTION_SCREENSHOT";
+
     public static boolean serviceIsWorking = true;
     private boolean firstTime = false;
     private boolean stillTouched = false;
     private ImageView animationImageView;
+
 
 
 
@@ -264,9 +268,9 @@ public class OverlayShowingService extends Service{
 
 
                         try{
-                            CheckingUtils.takeScreenshot((Activity)OverlayShowingService.this.getApplicationContext());
+                            LocalBroadcastManager.getInstance(OverlayShowingService.this).sendBroadcast(new Intent(ACTION_SCREENSHOT));
                         }catch (Exception e){
-                            Log.i("TEST", "First time");
+                            Log.i("TEST", e.getLocalizedMessage());
                         }
 
 

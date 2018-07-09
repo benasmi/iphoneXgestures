@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.codetail.widget.RevealFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:id="@+id/rootLayout"
@@ -36,6 +37,34 @@
             android:id="@+id/info_txt"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
+
+        <Button
+            android:text="Start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/center_switch"
+            android:layout_toStartOf="@+id/center_switch"
+            android:layout_marginEnd="25dp"
+            android:layout_marginTop="90dp"
+            android:id="@+id/button" />
+
+        <Button
+            android:text="Stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/button"
+            android:layout_toEndOf="@+id/center_switch"
+            android:layout_marginStart="19dp"
+            android:id="@+id/button2" />
+
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:srcCompat="@drawable/home"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:id="@+id/imageView2" />
 
     </RelativeLayout>
 
