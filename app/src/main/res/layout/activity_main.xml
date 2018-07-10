@@ -38,33 +38,15 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true" />
 
-        <Button
-            android:text="Start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/center_switch"
-            android:layout_toStartOf="@+id/center_switch"
-            android:layout_marginEnd="25dp"
-            android:layout_marginTop="90dp"
-            android:id="@+id/button" />
-
-        <Button
-            android:text="Stop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/button"
-            android:layout_toEndOf="@+id/center_switch"
-            android:layout_marginStart="19dp"
-            android:id="@+id/button2" />
-
         <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            app:srcCompat="@drawable/home"
-            android:layout_alignParentTop="true"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@drawable/ic_info_box"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="24dp"
-            android:id="@+id/imageView2" />
+            android:layout_marginBottom="60dp"
+            android:id="@+id/img_info_box" />
+
 
     </RelativeLayout>
 

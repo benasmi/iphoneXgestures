@@ -29,7 +29,10 @@ import java.nio.ByteBuffer;
  */
 
 public class ScreenshotManager {
+    /*
     private static final String SCREENCAP_NAME = "screencap";
+
+
     private static final int VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY | DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC;
     public static final ScreenshotManager INSTANCE = new ScreenshotManager();
     private Intent mIntent;
@@ -63,17 +66,36 @@ public class ScreenshotManager {
 
 
     public void onActivityResult(int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK && data != null)
+        if (resultCode == Activity.RESULT_OK && data != null){
             mIntent = data;
-        else mIntent = null;
+            OverlayShowingService.permisionIsGranted = true;
+        }else{
+            OverlayShowingService.permisionIsGranted = false;
+            mIntent = null;
+        }
+
+        Log.i("TEST", "Permision status: " + OverlayShowingService.permisionIsGranted);
+
+
+
     }
 
     @UiThread
     public boolean takeScreenshot(@NonNull Context context) {
+        if(!OverlayShowingService.permisionIsGranted) {
+            Log.i("TEST", "Permission was denied: No media projector");
+            return false;
+        }else{
+            Log.i("TEST", "Permission was given: Media projector has been created");
+        }
+
         if (mIntent == null)
             return false;
+            Log.i("TEST", "Nuotrauka saugojama");
+
         final MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) context.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         final MediaProjection mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, mIntent);
+
         if (mediaProjection == null)
             return false;
         final int density = context.getResources().getDisplayMetrics().densityDpi;
@@ -140,6 +162,7 @@ public class ScreenshotManager {
                 }.execute();
             }
         }, null);
+
         mediaProjection.registerCallback(new MediaProjection.Callback() {
             @Override
             public void onStop() {
@@ -150,6 +173,9 @@ public class ScreenshotManager {
                 mediaProjection.unregisterCallback(this);
             }
         }, null);
+
+
         return true;
     }
+    */
 }

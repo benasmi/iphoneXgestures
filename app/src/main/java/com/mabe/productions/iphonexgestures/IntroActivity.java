@@ -40,10 +40,15 @@ public class IntroActivity extends AppIntro2 {
         showSkipButton(false);
         addSlide(SampleSlide.newInstance("X-gestures", "iPhone gestures on your Android", R.drawable.ic_appicon, Color.parseColor("#315016")));
 
-        addSlide(SampleSlide.newInstance("Swipe","Swipe from bottom to open home screen", R.drawable.swipe_tutorial, Color.parseColor("#018191")));
+        addSlide(SampleSlide.newInstance("Home Screen","Swipe from bottom to open home screen", R.drawable.swipe_tutorial, Color.parseColor("#018191")));
 
-        addSlide(SampleSlide.newInstance("Swipe and hold","Swipe and hold to open recent apps", R.drawable.swipe_hold_tutorial, Color.parseColor("#236a99")));
+        addSlide(SampleSlide.newInstance("Recent apps","Swipe and hold to open recent apps", R.drawable.swipe_hold_tutorial, Color.parseColor("#236a99")));
 
+        addSlide(SampleSlide.newInstance("Back ","Swipe from center right to go back", R.drawable.back_gesture, Color.parseColor("#236a99")));
+
+        //addSlide(SampleSlide.newInstance("Screenshot","Swipe from top right corner to take a screenshot", R.drawable.screenshot, Color.parseColor("#236a99")));
+
+        addSlide(SampleSlide.newInstance("Previous app","Swipe from bottom left corner to go to previous app", R.drawable.switching_apps, Color.parseColor("#236a99")));
 
 
 

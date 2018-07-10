@@ -4,6 +4,7 @@ import android.Manifest;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -28,6 +30,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
@@ -65,11 +68,12 @@ public class MainActivity extends AppCompatActivity {
     private RevealFrameLayout root_layout;
     private Intent svc;
     private TextView infoTxt;
+    private ImageView img_info;
     private SharedPreferences sharedPreferences;
     private boolean isReceiverRegistered = false;
 
     private static final int REQUEST_ID = 1;
-    private ImageView imageView;
+
 
 
 
@@ -81,18 +85,14 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ScreenshotManager.INSTANCE.requestScreenshotPermission(MainActivity.this, REQUEST_ID);
-        registerReceiver();
-        Button start = (Button) findViewById(R.id.button);
-        Button stop = (Button) findViewById(R.id.button2);
-        imageView = (ImageView) findViewById(R.id.imageView2);
+        //registerReceiver();
 
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        Log.i("TEST", "PermissionOnCreate:"  + OverlayShowingService.permisionIsGranted);
+        /*
+        if(!OverlayShowingService.permisionIsGranted){
+            ScreenshotManager.INSTANCE.requestScreenshotPermission(MainActivity.this, REQUEST_ID);
+        }*/
 
-            }
-        });
 
 
         sharedPreferences = getSharedPreferences("user_data", MODE_PRIVATE);
@@ -100,6 +100,26 @@ public class MainActivity extends AppCompatActivity {
         Typeface tfLight = Typeface.createFromAsset(getAssets(),
                 "fonts/openSans.ttf");
         infoTxt.setTypeface(tfLight);
+
+        img_info = (ImageView) findViewById(R.id.img_info_box);
+        img_info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, IntroActivity.class);
+                startActivity(intent);
+                /*
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Gestures info")
+                        .setMessage("*Center right(Swipe): Back\n*Bottom center(Swipe): Home\n*Bottom center(Swipe&Hold): Recent apps\n*Bottom Left(Swipe): Previous application")
+                        .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
+                        */
+            }
+        });
 
         content_layout = (RelativeLayout) findViewById(R.id.content_layout);
         root_layout = (RevealFrameLayout) findViewById(R.id.rootLayout);
@@ -126,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         if(service_switch.isChecked()){
             infoTxt.setText("ON");
             infoTxt.setTextSize(35);
+            img_info.setColorFilter(img_info.getContext().getResources().getColor(R.color.light), PorterDuff.Mode.SRC_ATOP);
             root_layout.setBackgroundColor(getResources().getColor(R.color.colorAccent));
             infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
             OverlayShowingService.serviceIsWorking = true;
@@ -134,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
             startService(svc);
         }else{
             infoTxt.setText("OFF");
+            img_info.setColorFilter(img_info.getContext().getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
             root_layout.setBackgroundColor(getResources().getColor(R.color.light));
             infoTxt.setTextColor(Color.parseColor("#ff4081"));
             OverlayShowingService.serviceIsWorking = false;
@@ -158,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
                     startService(svc);
                     infoTxt.setText("ON");
                     infoTxt.setTextSize(35);
+                    img_info.setColorFilter(img_info.getContext().getResources().getColor(R.color.light), PorterDuff.Mode.SRC_ATOP);
                     infoTxt.setTextColor(Color.parseColor("#FFFFFF"));
                     //Toast.makeText(MainActivity.this,"Service started...",Toast.LENGTH_LONG).show();
                     splash(R.color.light, R.color.colorAccent);
@@ -169,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
                     infoTxt.setTextSize(35);
                     infoTxt.setTextColor(Color.parseColor("#ff4081"));
                     stopService(svc);
+                    img_info.setColorFilter(img_info.getContext().getResources().getColor(R.color.colorAccent), PorterDuff.Mode.SRC_ATOP);
                     //Toast.makeText(MainActivity.this,"Service stopped...",Toast.LENGTH_LONG).show();
                     splash(R.color.colorAccent, R.color.light);
                 }
@@ -179,28 +203,34 @@ public class MainActivity extends AppCompatActivity {
 
 }
 
+    /*
     BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
                 case OverlayShowingService.ACTION_SCREENSHOT:
-                    ScreenshotManager.INSTANCE.takeScreenshot(MainActivity.this);
+                    if(OverlayShowingService.permisionIsGranted){
+                        ScreenshotManager.INSTANCE.takeScreenshot(MainActivity.this);
+                    }
                     break;
+
 
             }
         }
     };
+
 
     private void registerReceiver(){
         if(!isReceiverRegistered) {
 
             IntentFilter filter = new IntentFilter();
             filter.addAction(OverlayShowingService.ACTION_SCREENSHOT);
+            filter.addAction(OverlayShowingService.ASK_PERMISSION);
             LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, filter);
             isReceiverRegistered = true;
         }
     }
-
+*/
 
 
 
@@ -235,11 +265,12 @@ public class MainActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+/*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ID)
             ScreenshotManager.INSTANCE.onActivityResult(resultCode, data);
     }
-
+*/
 
 }

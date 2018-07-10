@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -52,7 +53,8 @@ public class OverlayShowingService extends Service{
     private static int CENTER_RIGHT_MIN_DISTANCE;
 
     public static final String ACTION_SCREENSHOT = "ACTION_SCREENSHOT";
-
+    public static final String ASK_PERMISSION = "ASK_PERMISSION";
+    public static boolean permisionIsGranted = false;
     public static boolean serviceIsWorking = true;
     private boolean firstTime = false;
     private boolean stillTouched = false;
@@ -87,7 +89,7 @@ public class OverlayShowingService extends Service{
 
         //Left Bottom ImageView | SUBVIEW
         ImageView leftBottomImage = new ImageView(this);
-        LinearLayout.LayoutParams leftBottomImageParams = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(30,this),(int)CheckingUtils.convertPixelsToDp(30,this));
+        LinearLayout.LayoutParams leftBottomImageParams = new LinearLayout.LayoutParams((int)CheckingUtils.convertPixelsToDp(40,this),(int)CheckingUtils.convertPixelsToDp(30,this));
         leftBottomImage.setLayoutParams(leftBottomImageParams);
         leftBottomImage.setBackgroundColor(Color.TRANSPARENT);
         leftBottomImage.setOnTouchListener(new OnTouchListener() {
@@ -119,7 +121,7 @@ public class OverlayShowingService extends Service{
                 if(/*passedTime<800 && */firstTime && serviceIsWorking){
 
                     //Log.i("TEST", "Bottom to top");
-                    if(Math.abs(event.getX() - startingX) > BOTTOM_SWIPE_MIN_DISTANCE){
+                    if(Math.abs(event.getX() - startingX) > BOTTOM_LEFT_SWIPE_MIN_DISTANCE){
                         firstTime = !firstTime;
 
 
@@ -196,8 +198,6 @@ public class OverlayShowingService extends Service{
                         firstTime = !firstTime;
 
 
-
-
                         try{
                             MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
 
@@ -268,7 +268,13 @@ public class OverlayShowingService extends Service{
 
 
                         try{
-                            LocalBroadcastManager.getInstance(OverlayShowingService.this).sendBroadcast(new Intent(ACTION_SCREENSHOT));
+                            Log.i("TEST", "OnGesturePermision: " + permisionIsGranted);
+                            if(permisionIsGranted){
+                                LocalBroadcastManager.getInstance(OverlayShowingService.this).sendBroadcast(new Intent(ACTION_SCREENSHOT));
+                            }else{
+                                Toast.makeText(OverlayShowingService.this, "You have to give permission inside the app",Toast.LENGTH_LONG).show();
+                                //LocalBroadcastManager.getInstance(OverlayShowingService.this).sendBroadcast(new Intent(ASK_PERMISSION));
+                            }
                         }catch (Exception e){
                             Log.i("TEST", e.getLocalizedMessage());
                         }
@@ -277,8 +283,16 @@ public class OverlayShowingService extends Service{
 
                         try{
 
-                            if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
-                                backFade();
+                            if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class) && permisionIsGranted){
+
+                                Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        screenshotFade();
+                                        Toast.makeText(OverlayShowingService.this,"Screenshot has been saved in the gallery",Toast.LENGTH_LONG).show();
+                                    }
+                                },500);
                                 if(MyAccessibilityService.instance == null){
                                     Toast.makeText(OverlayShowingService.this, "Please reboot your phone to start AccessibilityService.", Toast.LENGTH_LONG);
                                     return true;
@@ -472,7 +486,7 @@ public class OverlayShowingService extends Service{
         wm.addView(layoutBottom, params);
         wm.addView(leftLayoutBottom,leftBottomParams);
         wm.addView(centerLayoutRight,centerRightParams);
-        wm.addView(rightLayoutTop,topRightParams);
+        //wm.addView(rightLayoutTop,topRightParams);
 
         final Handler handler = new Handler();
 
@@ -528,7 +542,12 @@ public class OverlayShowingService extends Service{
         animationImageView.startAnimation(homeAnimation);
     }
 
+    private void screenshotFade() {
+        animationImageView.setImageResource(R.drawable.ic_camera);
+        final Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.risefade);
+        animationImageView.startAnimation(homeAnimation);
 
+    }
 
 
 
