@@ -1,6 +1,7 @@
 package com.mabe.productions.iphonexgestures;
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         //registerReceiver();
 
         Log.i("TEST", "PermissionOnCreate:"  + OverlayShowingService.permisionIsGranted);

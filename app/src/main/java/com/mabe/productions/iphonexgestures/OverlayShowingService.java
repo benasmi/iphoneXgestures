@@ -51,6 +51,7 @@ public class OverlayShowingService extends Service{
     private static int BOTTOM_SWIPE_MIN_DISTANCE;
     private static int BOTTOM_LEFT_SWIPE_MIN_DISTANCE;
     private static int CENTER_RIGHT_MIN_DISTANCE;
+    private static int CENTER_DOWN_MIN_DISTANCE;
 
     public static final String ACTION_SCREENSHOT = "ACTION_SCREENSHOT";
     public static final String ASK_PERMISSION = "ASK_PERMISSION";
@@ -79,6 +80,7 @@ public class OverlayShowingService extends Service{
         BOTTOM_SWIPE_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(120, getApplicationContext());
         BOTTOM_LEFT_SWIPE_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(20, getApplicationContext());
         CENTER_RIGHT_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(20, getApplicationContext());
+        CENTER_DOWN_MIN_DISTANCE = (int) CheckingUtils.convertPixelsToDp(20, getApplicationContext());
 
         serviceIsWorking = true;
         //Center ImageView | SUBVIEW
@@ -172,6 +174,7 @@ public class OverlayShowingService extends Service{
 
             long startingTime = 0;
             double startingX = 0;
+            double startingY = 0;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
 
@@ -186,21 +189,21 @@ public class OverlayShowingService extends Service{
                     firstTime = true;
                     startingTime = System.currentTimeMillis();
                     startingX = event.getX();
+                    startingY = event.getY();
                     //Log.i("TEST", "PAKEITE BOOLENA į true");
                 }
 
                 long passedTime = System.currentTimeMillis() - startingTime;
 
-                if(/*passedTime<800 && */firstTime && serviceIsWorking){
+                if(firstTime && serviceIsWorking){
 
-                    //Log.i("TEST", "Bottom to top");
+                    //BACK GESTURE
                     if(Math.abs(event.getX() - startingX) > CENTER_RIGHT_MIN_DISTANCE){
                         firstTime = !firstTime;
 
 
                         try{
                             MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-
                         }catch (Exception e){
                             Log.i("TEST", "First time");
                         }
@@ -211,6 +214,37 @@ public class OverlayShowingService extends Service{
 
                             if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
                                 backFade();
+                                if(MyAccessibilityService.instance == null){
+                                    Toast.makeText(OverlayShowingService.this, "Please reboot your phone to start AccessibilityService.", Toast.LENGTH_LONG);
+                                    return true;
+                                }
+
+
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Please enable Accessibility services for X-Gestures!", Toast.LENGTH_LONG).show();
+                            }
+                        }catch (Exception e){
+                        }
+
+                    }
+
+                    //Notification GESTURE
+                    if((event.getY() - startingY) > CENTER_DOWN_MIN_DISTANCE){
+                        firstTime = !firstTime;
+
+
+                        try{
+                            MyAccessibilityService.instance.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
+                        }catch (Exception e){
+                            Log.i("TEST", "First time");
+                        }
+
+
+
+                        try{
+
+                            if(CheckingUtils.isAccessibilityServiceEnabled(OverlayShowingService.this, MyAccessibilityService.class)){
+                                notificationPanel();
                                 if(MyAccessibilityService.instance == null){
                                     Toast.makeText(OverlayShowingService.this, "Please reboot your phone to start AccessibilityService.", Toast.LENGTH_LONG);
                                     return true;
@@ -385,7 +419,7 @@ public class OverlayShowingService extends Service{
                         }
 
                     }
-                }, 350);
+                }, 280);
 
                     }
                 }
@@ -548,6 +582,14 @@ public class OverlayShowingService extends Service{
         animationImageView.startAnimation(homeAnimation);
 
     }
+
+    private void notificationPanel() {
+        animationImageView.setImageResource(R.drawable.ic_notification_panel);
+        final Animation homeAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.risefade);
+        animationImageView.startAnimation(homeAnimation);
+
+    }
+
 
 
 
